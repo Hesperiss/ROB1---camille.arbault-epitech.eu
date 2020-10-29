@@ -6,6 +6,16 @@ from rclpy.qos import QoSProfile
 from rclpy.qos import qos_profile_sensor_data
 from sensor_msgs.msg import LaserScan
 
+MAX_DISTANCE = 0.6
+
+FRONT = 0
+LEFT = 1
+RIGHT = 2
+
+BASE_LINEAR_SPEED = 0.2
+TURN_LINEAR_SPEED = 0.1
+ROTATION_SPEED = 0.4
+
 
 class Turtlebot3ObstacleDetection(Node):
 
@@ -40,7 +50,6 @@ class Turtlebot3ObstacleDetection(Node):
 
         self.get_logger().info("node initialised.")
 
-
     def scan_callback(self, msg: LaserScan):
         self.scan_ranges = msg.ranges
         self.has_scan_started = True
@@ -51,25 +60,38 @@ class Turtlebot3ObstacleDetection(Node):
 
     def update_callback(self):
         if self.has_scan_started is True:
-            self.check_for_obstacles()
+            self.handle_obstacles()
 
-    def check_for_obstacles(self):
-        obstacle_distance = min(self.scan_ranges)
-        safety_distance = 0.2
-        if (obstacle_distance > safety_distance):
+    def handle_obstacles(self):
+
+        walls_dist = self.scan_ranges
+        
+        # if no wall too close in front, keep going straight
+        if (walls_dist[FRONT] > MAX_DISTANCE):
             self.go_straight()
+
+        # else go towards nearest wall to follow it
+        elif (walls_dist[LEFT] < walls_dist[RIGHT]):
+            self.turn_left()   
         else:
-            self.turn()         
+            self.turn_right()     
 
     def go_straight(self):
         twist = Twist()
-        twist.linear.x = 0.2
+        twist.linear.x = BASE_LINEAR_SPEED
         twist.angular.z = self.angular_velocity
         self.cmd_vel_pub.publish(twist)
     
-    def turn(self):
+    def turn_left(self):
         twist = Twist()
-        twist.linear.x = 0.1
-        twist.angular.z = 0.2
-        self.get_logger().info("Obstacle nearby !")
+        twist.linear.x = TURN_LINEAR_SPEED
+        twist.angular.z = -ROTATION_SPEED
+        self.get_logger().info("going left !")
+        self.cmd_vel_pub.publish(twist)
+    
+    def turn_right(self):
+        twist = Twist()
+        twist.linear.x = TURN_LINEAR_SPEED
+        twist.angular.z = ROTATION_SPEED
+        self.get_logger().info("going right !")
         self.cmd_vel_pub.publish(twist)

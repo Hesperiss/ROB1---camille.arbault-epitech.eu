@@ -1,3 +1,5 @@
+import os
+from glob import glob
 from setuptools import setup
 
 package_name = 'camille_arbault_rob1'
@@ -10,6 +12,15 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        
+        # Include launch files
+        ('share/' + package_name, ['launch/rob1.launch.py']),
+        ('share/' + package_name, ['launch/map.launch.py']),
+
+        # include resources
+        ('share/' + package_name, ['resource/worlds/challenge_maze.world']),
+        ##(os.path.join('share', package_name), glob('resource/models', recursive=True))
+
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -20,7 +31,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'start = camille_arbault_rob1.main:main',
+            'rob1 = camille_arbault_rob1.main:main',
         ],
     },
 )
