@@ -18,9 +18,7 @@ setup(
         ('share/' + package_name, ['launch/map.launch.py']),
 
         # include resources
-        ('share/' + package_name, ['resource/worlds/challenge_maze.world']),
-        ##(os.path.join('share', package_name), glob('resource/models', recursive=True))
-
+        ('share/' + package_name, ['resource/worlds/challenge_maze.world'])
     ],
     install_requires=['setuptools'],
     zip_safe=True,
